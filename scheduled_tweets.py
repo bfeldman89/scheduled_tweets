@@ -16,7 +16,7 @@ airtab = Airtable(os.environ['botfeldman89_db'],
                   'scheduled_tweets', os.environ['AIRTABLE_API_KEY'])
 
 
-def send_next(quiet=True):
+def send_next(data):
     results = airtab.get_all(view='not yet tweeted')
     if results:
         record = results[0]
@@ -56,14 +56,16 @@ def send_next(quiet=True):
         this_dict['tweet id'] = tweet['id_str']
         this_dict['tweet json'] = str(tweet)
         airtab.update(record['id'], this_dict)
-        if not quiet:
-            print(tweet['text'])
-            print(
-                f"https://twitter.com/botfeldman89/status/{ tweet['id_str'] }")
-    if not quiet:
-        print(
-            f"scheduled tweets script is done 👌\nIt took {round(time.time() - t0, 2)} seconds.")
+        data['value2'] = f"{tweet['text']}\nscheduled tweets script is done 👌\nIt took {round(time.time() - t0, 2)} seconds."
+
+
+def main():
+    data = {'value1': 'scheduled_tweets.py'}
+    send_next(data)
+    data['value3'] = 'success'
+    ifttt_event_url = os.environ['IFTTT_WEBHOOKS_URL'].format('code_completed')
+    requests.post(ifttt_event_url, json=data)
 
 
 if __name__ == "__main__":
-    send_next(quiet=False)
+    main()
