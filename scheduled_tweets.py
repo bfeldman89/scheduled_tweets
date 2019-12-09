@@ -13,9 +13,17 @@ tw = Twython(os.environ['TWITTER_APP_KEY'], os.environ['TWITTER_APP_SECRET'],
              os.environ['TWITTER_OAUTH_TOKEN'], os.environ['TWITTER_OAUTH_TOKEN_SECRET'])
 airtab = Airtable(os.environ['botfeldman89_db'],
                   'scheduled_tweets', os.environ['AIRTABLE_API_KEY'])
+airtab_log = Airtable(os.environ['log_db'],
+                      'log', os.environ['AIRTABLE_API_KEY'])
 
-t0 = time.time()
-ifttt_payload = {'Value1': 'scheduled_tweets.py'}
+
+def wrap_it_up(t0, new, total=None, function=None):
+    this_dict = {'module': 'scheduled_tweets.py'}
+    this_dict['function'] = function
+    this_dict['duration'] = round((time.time() - t0) / 60, 2)
+    this_dict['total'] = total
+    this_dict['new'] = new
+    airtab_log.insert(this_dict, typecast=True)
 
 
 def upload_dc_images(dc_id):
@@ -44,8 +52,7 @@ def thread_or_not(record):
         last_tweet = airtab.get(record['fields']['reply_to_rid'])
         status_id = last_tweet['fields']['tweet id']
         return status_id
-    else:
-        return None
+    return None
 
 
 def send_next():
@@ -66,6 +73,7 @@ def send_next():
                                  media_ids=tweet_dict['media_id'],
                                  in_reply_to_status_id=tweet_dict['in_reply_to_status_id'])
         return record['id'], tweet
+    return None
 
 
 def update_tweets_airtable(rid, tweet):
@@ -73,22 +81,16 @@ def update_tweets_airtable(rid, tweet):
     this_dict['tweet id'] = tweet['id_str']
     this_dict['tweet json'] = str(tweet)
     airtab.update(rid, this_dict)
-    ifttt_payload['Value2'] = tweet['text']
-
-
-def send_ifttt(data):
-    data['Value3'] = round(time.time() - t0, 2)
-    ifttt_event_url = os.environ['IFTTT_WEBHOOKS_URL'].format(
-        'scheduled_tweets')
-    requests.post(ifttt_event_url, json=data)
 
 
 def main():
+    t0, i = time.time(), 0
     response = send_next()
     if response:
         rid, twitter_data = response
         update_tweets_airtable(rid, twitter_data)
-    send_ifttt(ifttt_payload)
+        i = 1
+    wrap_it_up(t0, i)
 
 
 if __name__ == "__main__":
