@@ -20,7 +20,7 @@ airtab_log = Airtable(os.environ['log_db'],
 def wrap_it_up(t0, new, total=None, function=None):
     this_dict = {'module': 'scheduled_tweets.py'}
     this_dict['function'] = function
-    this_dict['duration'] = round((time.time() - t0) / 60, 2)
+    this_dict['duration'] = round(time.time() - t0, 2)
     this_dict['total'] = total
     this_dict['new'] = new
     airtab_log.insert(this_dict, typecast=True)
