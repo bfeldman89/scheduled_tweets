@@ -7,14 +7,13 @@ from airtable import Airtable
 from documentcloud import DocumentCloud
 from twython import Twython
 
-dc = DocumentCloud(
-    os.environ['DOCUMENT_CLOUD_USERNAME'], os.environ['DOCUMENT_CLOUD_PW'])
+airtab = Airtable(os.environ['botfeldman89_db'], 'scheduled_tweets', os.environ['AIRTABLE_API_KEY'])
+airtab_log = Airtable(os.environ['log_db'], 'log', os.environ['AIRTABLE_API_KEY'])
+
+dc = DocumentCloud(os.environ['DOCUMENT_CLOUD_USERNAME'], os.environ['DOCUMENT_CLOUD_PW'])
+
 tw = Twython(os.environ['TWITTER_APP_KEY'], os.environ['TWITTER_APP_SECRET'],
              os.environ['TWITTER_OAUTH_TOKEN'], os.environ['TWITTER_OAUTH_TOKEN_SECRET'])
-airtab = Airtable(os.environ['botfeldman89_db'],
-                  'scheduled_tweets', os.environ['AIRTABLE_API_KEY'])
-airtab_log = Airtable(os.environ['log_db'],
-                      'log', os.environ['AIRTABLE_API_KEY'])
 
 
 def wrap_it_up(t0, new, total=None, function=None):
@@ -61,18 +60,16 @@ def send_next():
         record = results[0]
         tweet_dict = {'status': record['fields']['msg']}
         if record['fields']['re'] == "clippings":
-            tweet_dict['media_id'] = upload_dc_images(
-                record['fields']['dc_id'])
+            tweet_dict['media_id'] = upload_dc_images(record['fields']['dc_id'])
         elif 'img' in record['fields']:
-            tweet_dict['media_id'] = upload_img_from_table(
-                record['fields']['img'])
+            tweet_dict['media_id'] = upload_img_from_table(record['fields']['img'])
         else:
             tweet_dict['media_id'] = None
         tweet_dict['in_reply_to_status_id'] = thread_or_not(record)
         tweet = tw.update_status(status=tweet_dict['status'],
                                  media_ids=tweet_dict['media_id'],
                                  in_reply_to_status_id=tweet_dict['in_reply_to_status_id'])
-        return record['id'], tweet
+        return record['id'], tweet, len(results)
     return None
 
 
@@ -84,13 +81,13 @@ def update_tweets_airtable(rid, tweet):
 
 
 def main():
-    t0, i = time.time(), 0
+    t0, i, total = time.time(), 0, 0
     response = send_next()
     if response:
-        rid, twitter_data = response
+        rid, twitter_data, total = response
         update_tweets_airtable(rid, twitter_data)
         i = 1
-    wrap_it_up(t0, i)
+    wrap_it_up(t0, i, total, 'scheduled_tweets.main')
 
 
 if __name__ == "__main__":
