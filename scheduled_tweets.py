@@ -1,28 +1,11 @@
 # !/usr/bin/env python3
 import time
 from io import BytesIO
-import os
 import requests
-from airtable import Airtable
-from documentcloud import DocumentCloud
-from twython import Twython
-
-airtab = Airtable(os.environ['botfeldman89_db'], 'scheduled_tweets', os.environ['AIRTABLE_API_KEY'])
-airtab_log = Airtable(os.environ['log_db'], 'log', os.environ['AIRTABLE_API_KEY'])
-
-dc = DocumentCloud(os.environ['DOCUMENT_CLOUD_USERNAME'], os.environ['DOCUMENT_CLOUD_PW'])
-
-tw = Twython(os.environ['TWITTER_APP_KEY'], os.environ['TWITTER_APP_SECRET'],
-             os.environ['TWITTER_OAUTH_TOKEN'], os.environ['TWITTER_OAUTH_TOKEN_SECRET'])
+from common import airtab_tweets as airtab, dc, tw, wrap_from_module
 
 
-def wrap_it_up(t0, new, total=None, function=None):
-    this_dict = {'module': 'scheduled_tweets.py'}
-    this_dict['function'] = function
-    this_dict['duration'] = round(time.time() - t0, 2)
-    this_dict['total'] = total
-    this_dict['new'] = new
-    airtab_log.insert(this_dict, typecast=True)
+wrap_it_up = wrap_from_module('scheduled_tweets')
 
 
 def upload_dc_images(dc_id):
