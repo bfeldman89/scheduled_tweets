@@ -5,7 +5,7 @@ import requests
 from common import airtab_tweets as airtab, dc, tw, wrap_from_module
 
 
-wrap_it_up = wrap_from_module('scheduled_tweets')
+wrap_it_up = wrap_from_module('scheduled_tweets.py')
 
 
 def upload_dc_images(dc_id):
