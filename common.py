@@ -8,28 +8,8 @@ from documentcloud import DocumentCloud
 from twython import Twython
 
 
-airtab_intakes = Airtable(base_key=os.environ['jail_scrapers_db'],
-                          table_name='intakes',
-                          api_key=os.environ['AIRTABLE_API_KEY'])
-
 airtab_log = Airtable(base_key=os.environ['log_db'],
                       table_name='log',
-                      api_key=os.environ['AIRTABLE_API_KEY'])
-
-airtab_daily = Airtable(base_key=os.environ['jail_scrapers_db'],
-                        table_name='daily stats',
-                        api_key=os.environ['AIRTABLE_API_KEY'])
-
-airtab_courts = Airtable(base_key=os.environ['other_scrapers_db'],
-                         table_name='courts',
-                         api_key=os.environ['AIRTABLE_API_KEY'])
-
-airtab_mdoc = Airtable(base_key=os.environ['other_scrapers_db'],
-                       table_name='mdoc',
-                       api_key=os.environ['AIRTABLE_API_KEY'])
-
-airtab_sos = Airtable(base_key=os.environ['other_scrapers_db'],
-                      table_name='exec_orders',
                       api_key=os.environ['AIRTABLE_API_KEY'])
 
 airtab_tweets = Airtable(base_key=os.environ['botfeldman89_db'],
