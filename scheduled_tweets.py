@@ -18,7 +18,7 @@ def upload_dc_images(dc_id):
         uploadable = BytesIO(res.content)
         response = tw.upload_media(media=uploadable)
         media_ids.append(response['media_id'])
-        return media_ids
+    return media_ids
 
 
 def upload_img_from_table(img):
@@ -42,7 +42,7 @@ def send_next():
     if results:
         record = results[0]
         tweet_dict = {'status': record['fields']['msg']}
-        if record['fields']['re'] == "clippings":
+        if 'dc_id' in record['fields']:
             tweet_dict['media_id'] = upload_dc_images(record['fields']['dc_id'])
         elif 'img' in record['fields']:
             tweet_dict['media_id'] = upload_img_from_table(record['fields']['img'])
