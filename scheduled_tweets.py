@@ -32,7 +32,7 @@ def upload_img_from_table(img):
 def thread_or_not(record):
     if 'reply_to_rid' in record['fields']:
         last_tweet = airtab.get(record['fields']['reply_to_rid'])
-        status_id = last_tweet['fields']['tweet id']
+        status_id = last_tweet['fields'].get('tweet id')
         return status_id
     return None
 
