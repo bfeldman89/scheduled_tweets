@@ -38,7 +38,7 @@ def thread_or_not(record):
 
 
 def send_next():
-    results = airtab.get_all(view='not yet tweeted')
+    results = airtab.all(view='not yet tweeted')
     if results:
         record = results[0]
         tweet_dict = {'status': record['fields']['msg']}

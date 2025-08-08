@@ -2,19 +2,18 @@
 """This module provides a function for shipping logs to Airtable."""
 import os
 import time
-from airtable import Airtable
+from pyairtable import Api
 import cloudinary
 from documentcloud import DocumentCloud
 from twython import Twython
 
 
-airtab_log = Airtable(base_key=os.environ['log_db'],
-                      table_name='log',
-                      api_key=os.environ['AIRTABLE_API_KEY'])
+api = Api(os.environ['AIRTABLE_PAT'])
+airtab_log = api(base_key=os.environ['log_db'],
+                      'log')
 
-airtab_tweets = Airtable(base_key=os.environ['botfeldman89_db'],
-                         table_name='scheduled_tweets',
-                         api_key=os.environ['AIRTABLE_API_KEY'])
+airtab_tweets = api(base_key=os.environ['botfeldman89_db'],
+                         'scheduled_tweets')
 
 cloudinary.config(cloud_name='bfeldman89',
                   api_key=os.environ['CLOUDINARY_API_KEY'],
